@@ -1,0 +1,5 @@
+com/h3xstream/findsecbugs/annotations/Sanitizer
+com/h3xstream/findsecbugs/annotation/Sanitizer
+com/h3xstream/findsecbugs/taintanalysis/Sanitizer
+javax/annotation/Detainted
+jakarta/annotation/Detainted

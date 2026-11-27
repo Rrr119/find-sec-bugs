@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -58,6 +59,8 @@ public class TaintConfig extends HashMap<String, TaintMethodConfig> {
             new HashMap<String, TaintMethodConfigWithArgumentsAndLocation>();
 
     private final Map<String, Taint> staticFieldsTaint = new HashMap<String, Taint>();
+
+    private final Set<String> annotationSummariesChecked = new HashSet<String>();
 
     /**
      * Dumps all the summaries for debugging
@@ -242,6 +245,13 @@ public class TaintConfig extends HashMap<String, TaintMethodConfig> {
             taintMethodConfig = get(className.concat(methodId));
         }
 
+        if (taintMethodConfig == null || !taintMethodConfig.isConfigured()) {
+            TaintMethodConfig annotationConfig = getAnnotationMethodConfig(className, methodId);
+            if (annotationConfig != null) {
+                taintMethodConfig = annotationConfig;
+            }
+        }
+
         if (taintMethodConfig == null) {
             taintMethodConfig = getSuperMethodConfig(className, methodId);
         }
@@ -263,6 +273,32 @@ public class TaintConfig extends HashMap<String, TaintMethodConfig> {
         }
 
         return taintMethodConfig;
+    }
+
+    private TaintMethodConfig getAnnotationMethodConfig(String className, String methodId) {
+        String key = className.concat(methodId);
+        int argumentStart = methodId.indexOf('(');
+        if (argumentStart <= 1) {
+            return null;
+        }
+        String methodName = methodId.substring(1, argumentStart);
+        String signature = methodId.substring(argumentStart);
+        if (CrossMethodTaintTracker.isSanitizerMethod(className, methodName, signature)) {
+            TaintMethodConfig sanitizerConfig = CrossMethodTaintTracker.safeConfig();
+            sanitizerConfig.setTypeSignature(key);
+            put(key, sanitizerConfig);
+            return sanitizerConfig;
+        }
+        if (annotationSummariesChecked.contains(key)) {
+            return null;
+        }
+        annotationSummariesChecked.add(key);
+        TaintMethodConfig config = SanitizerAnnotationSummary.find(className, methodName, signature);
+        if (config != null) {
+            config.setTypeSignature(key);
+            put(key, config);
+        }
+        return config;
     }
 
     public TaintMethodConfig getSuperMethodConfig(String className, String methodId) {

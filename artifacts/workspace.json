@@ -1,0 +1,17 @@
+{
+  "root": "/home/dev/feedback/uid43144",
+  "B": "/home/dev/feedback/uid43144",
+  "sha": "f6c616f95f7abf407835037337ad07c176d0e019",
+  "wslDistro": "Ubuntu-26.04",
+  "source": {
+    "owner": "find-sec-bugs",
+    "repo": "find-sec-bugs",
+    "sha": "f6c616f95f7abf407835037337ad07c176d0e019"
+  },
+  "fork": {
+    "owner": "Rrr119",
+    "repo": "find-sec-bugs",
+    "cloneUrl": "https://github.com/Rrr119/find-sec-bugs.git"
+  },
+  "at": "2026-11-27T00:45:47.371Z"
+}

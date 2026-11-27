@@ -623,6 +623,12 @@ public class TaintFrameModelingVisitor extends AbstractFrameModelingVisitor<Tain
         String methodName = obj.getMethodName(cpg);
         String methodId = "." + methodName + signature;
         TaintMethodConfig config = taintConfig.getMethodConfig(getFrame(), methodDescriptor, className, methodId);
+        String exactMethodKey = className.concat(methodId);
+        if (obj.getOpcode() != Const.INVOKEDYNAMIC && !taintConfig.containsKey(exactMethodKey)) {
+            CrossMethodTaintTracker.resolveCallee(className, methodName, signature,
+                    obj instanceof INVOKESTATIC, taintConfig);
+        }
+        config = taintConfig.getMethodConfig(getFrame(), methodDescriptor, className, methodId);
         if (config != null) {
             config = getConfigWithReplaceTags(config, className, methodName);
         }
